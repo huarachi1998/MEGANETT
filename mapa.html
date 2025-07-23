@@ -3,14 +3,21 @@
 <head>
   <meta charset="UTF-8" />
   <title>Mapa de Clientes</title>
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <link 
-    rel="stylesheet" 
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <link
+    rel="stylesheet"
     href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"
   />
   <style>
-    html, body { height: 100%; margin: 0; }
-    #map { height: 100%; }
+    html,
+    body {
+      height: 100%;
+      margin: 0;
+    }
+    #map {
+      height: 100vh;
+      width: 100vw;
+    }
     .form-popup {
       font-family: sans-serif;
       font-size: 14px;
@@ -44,24 +51,26 @@
   <script src="https://cdn.jsdelivr.net/npm/papaparse@5.4.1/papaparse.min.js"></script>
 
   <script>
-    const scriptURL = "https://script.google.com/macros/s/AKfycbw6VpSHeZzGhfiajSZooUtm-nu_SHuuzJI-KovhHAY8vHSNv07sw0fUIV3gOuEaM6w38w/exec";
+    // URL del Google Apps Script desplegado
+    const scriptURL = "https://script.google.com/macros/s/AKfycbxUBIfKAjQICCbZaiXDSyr8n5j5x9eDVUdC0qV_MlCZk17qQdysU8V2tkSkUEr11mTuuQ/exec";
 
-    // URL pública CSV de tu Google Sheets (debes publicar la hoja)
+    // URL pública CSV de tu Google Sheets (reemplaza si tienes otra)
     const csvURL = "https://docs.google.com/spreadsheets/d/e/2PACX-1vQSEdbWwSHKOLL9lf40WTKvspSsPGP77M90GmDGKEqJsePbl_GtPwBTrnPhe2E7D4MYqtIJoFOdfOzb/pub?output=csv";
 
-    const map = L.map('map').setView([-17.4, -66.2], 13);
+    // Inicializar mapa centrado en Bolivia (puedes cambiar coords y zoom)
+    const map = L.map("map").setView([-17.4, -66.2], 13);
 
-    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-      attribution: '© OpenStreetMap contributors'
+    L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", {
+      attribution: "© OpenStreetMap contributors",
     }).addTo(map);
 
-    // Cargar marcadores existentes
+    // Cargar clientes guardados y marcarlos
     function cargarClientes() {
       Papa.parse(csvURL, {
         download: true,
         header: true,
-        complete: function(results) {
-          results.data.forEach(cliente => {
+        complete: function (results) {
+          results.data.forEach((cliente) => {
             const lat = parseFloat(cliente.latitud);
             const lng = parseFloat(cliente.longitud);
             const nombre = cliente.nombre || "Sin nombre";
@@ -73,32 +82,31 @@
                 .bindPopup(`<strong>${nombre}</strong><br>${servicio}`);
             }
           });
-        }
+        },
       });
     }
 
     cargarClientes();
 
-    map.on('click', function(e) {
+    // Al clickear en mapa, abre formulario para agregar cliente
+    map.on("click", function (e) {
       const lat = e.latlng.lat.toFixed(6);
       const lng = e.latlng.lng.toFixed(6);
 
       const popupContent = `
         <div class="form-popup">
           <label>Nombre:</label>
-          <input type="text" id="nombre" placeholder="Ej: Juan Pérez">
+          <input type="text" id="nombre" placeholder="Ej: Juan Pérez" />
           <label>Servicio:</label>
-          <input type="text" id="servicio" placeholder="Ej: 300 Mbps">
+          <input type="text" id="servicio" placeholder="Ej: 300 Mbps" />
           <button onclick="guardarCliente(${lat}, ${lng})">Guardar</button>
         </div>
       `;
 
-      L.popup()
-        .setLatLng(e.latlng)
-        .setContent(popupContent)
-        .openOn(map);
+      L.popup().setLatLng(e.latlng).setContent(popupContent).openOn(map);
     });
 
+    // Guardar cliente en Google Sheets via Apps Script
     function guardarCliente(lat, lng) {
       const nombre = document.getElementById("nombre").value.trim();
       const servicio = document.getElementById("servicio").value.trim();
@@ -114,21 +122,25 @@
         method: "POST",
         body: JSON.stringify(cliente),
         headers: {
-          "Content-Type": "application/json"
-        }
+          "Content-Type": "application/json",
+        },
       })
-      .then(res => res.text())
-      .then(() => {
-        alert("✅ Cliente guardado correctamente");
-        L.marker([lat, lng])
-          .addTo(map)
-          .bindPopup(`<strong>${nombre}</strong><br>${servicio}`)
-          .openPopup();
-      })
-      .catch(err => {
-        console.error("❌ Error:", err);
-        alert("❌ No se pudo guardar");
-      });
+        .then((res) => res.json())
+        .then((data) => {
+          if (data.result === "success") {
+            alert("✅ Cliente guardado correctamente");
+            L.marker([lat, lng])
+              .addTo(map)
+              .bindPopup(`<strong>${nombre}</strong><br>${servicio}`)
+              .openPopup();
+          } else {
+            alert("❌ Error: " + data.message);
+          }
+        })
+        .catch((err) => {
+          console.error("❌ Error:", err);
+          alert("❌ No se pudo guardar");
+        });
 
       map.closePopup();
     }
