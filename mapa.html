@@ -1,107 +1,52 @@
 <!DOCTYPE html>
 <html>
 <head>
-  <title>Mapa interactivo con guardado</title>
+  <title>Mapa de Ubicaciones</title>
   <meta charset="utf-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <link
-    rel="stylesheet"
-    href="https://unpkg.com/leaflet/dist/leaflet.css"
-  />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+  <!-- Leaflet CSS -->
+  <link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css" />
   <style>
-    #map {
-      height: 80vh;
-      width: 100%;
-    }
-    #formulario {
-      margin: 10px;
-    }
+    #map { height: 90vh; width: 100%; }
   </style>
 </head>
 <body>
 
-  <div id="map"></div>
+<h2>Mapa de ubicaciones guardadas</h2>
+<div id="map"></div>
 
-  <div id="formulario">
-    <input type="text" id="nombre" placeholder="Nombre del lugar" />
-    <button id="guardarBtn" disabled>Guardar ubicación seleccionada</button>
-    <p id="mensaje"></p>
-  </div>
+<!-- Leaflet JS -->
+<script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
+<script>
+  // Inicializar mapa centrado en Bolivia (puedes cambiar las coordenadas)
+  var map = L.map('map').setView([-16.5, -68.1], 6);
 
-  <script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
-  <script>
-    const map = L.map("map").setView([-17.4, -66.15], 13);
+  // Capa base OpenStreetMap
+  L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+    maxZoom: 19,
+  }).addTo(map);
 
-    L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", {
-      attribution: "© OpenStreetMap contributors",
-      maxZoom: 18,
-    }).addTo(map);
+  // URL de tu app web Google Apps Script (solo GET)
+  var url = 'https://script.google.com/macros/s/AKfycbwKdRrbDAQ0fnVw3hZsebHXlHgLW8WInBTaLzv6pdC_JqBtCQxDlYubz1e7xqZwMtIRGQ/exec';
 
-    let markerSeleccionado = null;
-    let latSeleccionada = null;
-    let lonSeleccionada = null;
-
-    map.on("click", function(e) {
-      latSeleccionada = e.latlng.lat;
-      lonSeleccionada = e.latlng.lng;
-
-      if (markerSeleccionado) {
-        map.removeLayer(markerSeleccionado);
-      }
-
-      markerSeleccionado = L.marker([latSeleccionada, lonSeleccionada]).addTo(map)
-        .bindPopup("Ubicación seleccionada").openPopup();
-
-      document.getElementById("guardarBtn").disabled = false;
-      document.getElementById("mensaje").textContent = `Ubicación lista para guardar: (${latSeleccionada.toFixed(5)}, ${lonSeleccionada.toFixed(5)})`;
-    });
-
-    // Aquí debes poner la URL de tu app web
-    const webAppUrl = "https://script.google.com/macros/s/AKfycbyMW-KV6BeC9LwtQL73EsyBW7Upl2w52sM-GDT1t5NQcpgly5whRS2nU-LDo6cPHJPFbQ/exec";
-
-    document.getElementById("guardarBtn").addEventListener("click", () => {
-      const nombre = document.getElementById("nombre").value.trim();
-      if (!nombre) {
-        alert("Por favor, ingresa un nombre para la ubicación.");
-        return;
-      }
-      if (latSeleccionada === null || lonSeleccionada === null) {
-        alert("Selecciona una ubicación en el mapa primero.");
-        return;
-      }
-
-      const data = {
-        nombre: nombre,
-        lat: latSeleccionada,
-        lon: lonSeleccionada,
-      };
-
-      fetch(webAppUrl, {
-        method: "POST",
-        body: JSON.stringify(data),
-        headers: {
-          "Content-Type": "application/json",
-        },
-      })
-      .then(response => response.json())
-      .then(resp => {
-        if (resp.result === "success") {
-          alert("Ubicación guardada correctamente.");
-          document.getElementById("nombre").value = "";
-          document.getElementById("guardarBtn").disabled = true;
-          document.getElementById("mensaje").textContent = "";
-          if (markerSeleccionado) {
-            map.removeLayer(markerSeleccionado);
-            markerSeleccionado = null;
-          }
-        } else {
-          alert("Error al guardar: " + resp.message);
+  // Cargar datos desde GAS y pintar marcadores
+  fetch(url)
+    .then(response => response.json())
+    .then(data => {
+      data.forEach(item => {
+        if(item.lat && item.lon) {
+          L.marker([parseFloat(item.lat), parseFloat(item.lon)])
+            .addTo(map)
+            .bindPopup(`<b>${item.nombre}</b><br>Lat: ${item.lat}<br>Lon: ${item.lon}`);
         }
-      })
-      .catch(err => {
-        alert("Error enviando los datos: " + err);
       });
+    })
+    .catch(err => {
+      alert("Error al cargar los datos del mapa.");
+      console.error(err);
     });
-  </script>
+</script>
+
 </body>
 </html>
