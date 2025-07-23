@@ -1,49 +1,42 @@
-document.getElementById("fecha").textContent = new Date().toLocaleString();
+let puntos = 120;
+let cash = 350;
 
-const map = L.map('map').setView([-16.5, -68.15], 13);
-L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png').addTo(map);
+document.getElementById("puntos").textContent = puntos;
+document.getElementById("cash").textContent = cash;
 
-L.Icon.Default.mergeOptions({
-  iconRetinaUrl: 'https://unpkg.com/leaflet@1.9.4/dist/images/marker-icon-2x.png',
-  iconUrl: 'https://unpkg.com/leaflet@1.9.4/dist/images/marker-icon.png',
-  shadowUrl: 'https://unpkg.com/leaflet@1.9.4/dist/images/marker-shadow.png'
-});
+const map = L.map('map').setView([-16.5, -68.1], 13);
+L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png').addTo(map);
 
-let markers = [];
-
-fetch('naps.json')
-  .then(r => r.json())
+// Cargar nodos
+fetch('nodos.json')
+  .then(response => response.json())
   .then(data => {
-    data.forEach(nap => {
-      const marker = L.marker([nap.lat, nap.lng]).addTo(map)
-        .bindPopup(`
-          <strong>${nap.nombre}</strong><br>
-          Estado: ${nap.estado}<br>
-          Capacidad: ${nap.capacidad}<br>
-          Puertos libres: ${nap.puertos_libres}<br>
-          OLT: ${nap.olt}<br>
-          Potencia: ${nap.potencia}<br>
-          Precinto: ${nap.precinto}<br>
-          <a href="mailto:${nap.correo}">${nap.correo}</a>
-        `);
-      marker.estado = nap.estado;
-      markers.push(marker);
-
-      const panel = document.getElementById("panel");
-      const item = document.createElement("div");
-      item.innerHTML = `<strong>${nap.nombre}</strong><br>
-        Estado: ${nap.estado}<br>
-        Puertos libres: ${nap.puertos_libres}<hr>`;
-      panel.appendChild(item);
+    data.forEach(nodo => {
+      const marker = L.marker([nodo.lat, nodo.lng]).addTo(map);
+      marker.bindPopup(`<strong>${nodo.nombre}</strong><br>Estado: ${nodo.estado}`);
+      marker.on('click', () => {
+        document.getElementById('panel').innerHTML = `
+          <h2>${nodo.nombre}</h2>
+          <p>Estado: ${nodo.estado}</p>
+          <p>Cliente/s: ${nodo.clientes}</p>
+        `;
+      });
+      marker._nodoEstado = nodo.estado;
     });
   });
 
+// Filtro
 function filtrar(estado) {
-  markers.forEach(m => {
-    if (estado === 'todos' || m.estado === estado) {
-      map.addLayer(m);
-    } else {
-      map.removeLayer(m);
+  map.eachLayer(layer => {
+    if (layer instanceof L.Marker && layer._nodoEstado) {
+      if (estado === 'todos' || layer._nodoEstado === estado) {
+        layer.addTo(map);
+      } else {
+        map.removeLayer(layer);
+      }
     }
   });
 }
+
+// Fecha actual
+document.getElementById("fecha").textContent = new Date().toLocaleString();
