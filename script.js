@@ -1,5 +1,4 @@
 const map = L.map('map').setView([-16.5, -68.15], 13);
-
 L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
   attribution: '&copy; OpenStreetMap contributors'
 }).addTo(map);
@@ -15,10 +14,11 @@ fetch('nodos.json')
       const props = nodo.properties;
       const coords = nodo.geometry.coordinates.reverse();
 
-      // 🧙‍♂️ Generador mágico por nodo
-      const nombreCaja = `Caja P${Math.floor(Math.random() * 4) + 1}_${Math.floor(Math.random() * 5) + 2}`;
+      // 🔀 Datos aleatorios por caja
+      const nombreCaja = `Caja P${Math.floor(Math.random() * 5) + 1}_${Math.floor(Math.random() * 5) + 1}`;
       const celular = `60000${Math.floor(100 + Math.random() * 899)}`;
-      const puertos = Math.floor(Math.random() * 12) + 5;
+      const puertos = Math.floor(Math.random() * 16) + 1;
+      const olt = `OLT-${props.nombre.split(" ")[1] || "X"}-${Math.floor(Math.random() * 10) + 1}`;
 
       const marker = L.marker(coords).addTo(map)
         .bindPopup(`<b>${props.nombre}</b><br>Status: ${props.estado}<br>Cash: $${props.cash}`);
@@ -27,17 +27,18 @@ fetch('nodos.json')
       marker.on('click', () => {
         const panel = document.getElementById("panel");
         panel.innerHTML = `
-          <div class="caja-info">
-            <h2>📦 ${nombreCaja}</h2>
-            <p><strong>${props.nombre}</strong></p>
-            <p>📞 Celular de atención: ${celular}</p>
+          <div class="panel-contenido">
+            <h2>${props.nombre}</h2>
+            <p><strong>${nombreCaja}</strong></p>
+            <p>📞 Técnico: ${celular}</p>
             <p>🔌 Puertos disponibles: ${puertos}</p>
-            <p>Status: ${props.estado.toUpperCase()}</p>
+            <p>🧠 OLT asignado: ${olt}</p>
+            <p>⚠️ Estado: <span class="estado ${props.estado}">${props.estado}</span></p>
             <p>💰 Cash acumulado: $${props.cash}</p>
           </div>
         `;
         panel.classList.add("animado");
-        setTimeout(() => panel.classList.remove("animado"), 900);
+        setTimeout(() => panel.classList.remove("animado"), 800);
       });
 
       marcadores.push(marker);
@@ -50,4 +51,12 @@ fetch('nodos.json')
     document.getElementById("fecha").textContent = new Date().toLocaleDateString();
   });
 
-function filtrar
+function filtrar(estado) {
+  marcadores.forEach(marker => {
+    if (estado === 'todos' || marker.estado === estado) {
+      marker.addTo(map);
+    } else {
+      map.removeLayer(marker);
+    }
+  });
+}
