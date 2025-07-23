@@ -37,21 +37,71 @@
       maxZoom: 18,
     }).addTo(map);
 
-    // Cargar puntos existentes
-    const csvUrl = "https://docs.google.com/spreadsheets/d/e/2PACX-1vRk_WtyKcE2kJXGSTFvze50600ZqjjTc3sivH-Le5Hdr_uSILd_p9AB_wyNlAbKGktpd9y-_aEFpvS6/pub?gid=0&single=true&output=csv";
+    let markerSeleccionado = null;
+    let latSeleccionada = null;
+    let lonSeleccionada = null;
 
-    function parseCSV(str) {
-      const lines = str.trim().split("\n");
-      const headers = lines[0].split(",");
-      return lines.slice(1).map(line => {
-        const values = line.split(",");
-        let obj = {};
-        headers.forEach((h, i) => obj[h.trim()] = values[i].trim());
-        return obj;
+    map.on("click", function(e) {
+      latSeleccionada = e.latlng.lat;
+      lonSeleccionada = e.latlng.lng;
+
+      if (markerSeleccionado) {
+        map.removeLayer(markerSeleccionado);
+      }
+
+      markerSeleccionado = L.marker([latSeleccionada, lonSeleccionada]).addTo(map)
+        .bindPopup("Ubicación seleccionada").openPopup();
+
+      document.getElementById("guardarBtn").disabled = false;
+      document.getElementById("mensaje").textContent = `Ubicación lista para guardar: (${latSeleccionada.toFixed(5)}, ${lonSeleccionada.toFixed(5)})`;
+    });
+
+    // Aquí debes poner la URL de tu app web
+    const webAppUrl = "https://script.google.com/macros/s/AKfycbyMW-KV6BeC9LwtQL73EsyBW7Upl2w52sM-GDT1t5NQcpgly5whRS2nU-LDo6cPHJPFbQ/exec";
+
+    document.getElementById("guardarBtn").addEventListener("click", () => {
+      const nombre = document.getElementById("nombre").value.trim();
+      if (!nombre) {
+        alert("Por favor, ingresa un nombre para la ubicación.");
+        return;
+      }
+      if (latSeleccionada === null || lonSeleccionada === null) {
+        alert("Selecciona una ubicación en el mapa primero.");
+        return;
+      }
+
+      const data = {
+        nombre: nombre,
+        lat: latSeleccionada,
+        lon: lonSeleccionada,
+      };
+
+      fetch(webAppUrl, {
+        method: "POST",
+        body: JSON.stringify(data),
+        headers: {
+          "Content-Type": "application/json",
+        },
+      })
+      .then(response => response.json())
+      .then(resp => {
+        if (resp.result === "success") {
+          alert("Ubicación guardada correctamente.");
+          document.getElementById("nombre").value = "";
+          document.getElementById("guardarBtn").disabled = true;
+          document.getElementById("mensaje").textContent = "";
+          if (markerSeleccionado) {
+            map.removeLayer(markerSeleccionado);
+            markerSeleccionado = null;
+          }
+        } else {
+          alert("Error al guardar: " + resp.message);
+        }
+      })
+      .catch(err => {
+        alert("Error enviando los datos: " + err);
       });
-    }
-
-    fetch(csvUrl)
-      .then(res => res.text())
-      .then(text => {
-        const data = parseCSV(tex
+    });
+  </script>
+</body>
+</html>
