@@ -1,43 +1,131 @@
-<form id="clienteForm">
-  <input type="text" id="nombre" placeholder="Nombre" required />
-  <input type="text" id="servicio" placeholder="Servicio (ej. 300 Mbps)" required />
-  <button type="submit">📍 Agregar y Guardar</button>
-</form>
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Mapa Interactivo con Guardado</title>
+  <link
+    rel="stylesheet"
+    href="https://unpkg.com/leaflet/dist/leaflet.css"
+  />
+  <style>
+    #map {
+      height: 80vh;
+      width: 100%;
+    }
+    #formulario {
+      margin: 10px;
+    }
+  </style>
+</head>
+<body>
+  <div id="map"></div>
 
-<script>
-  const formURL = "https://docs.google.com/forms/d/e/TU_FORM_ID/formResponse";
+  <div id="formulario">
+    <input type="text" id="nombre" placeholder="Nombre del lugar" />
+    <button id="guardarBtn" disabled>Guardar ubicación seleccionada</button>
+    <p id="mensaje"></p>
+  </div>
 
-  document.getElementById("clienteForm").addEventListener("submit", e => {
-    e.preventDefault();
+  <script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
+  <script>
+    const webAppUrl = "https://script.google.com/macros/s/AKfycbyMW-KV6BeC9LwtQL73EsyBW7Upl2w52sM-GDT1t5NQcpgly5whRS2nU-LDo6cPHJPFbQ/exec";
 
-    const nombre = document.getElementById("nombre").value;
-    const servicio = document.getElementById("servicio").value;
+    const map = L.map("map").setView([-17.4, -66.15], 13);
 
-    if (!navigator.geolocation) {
-      alert("Tu navegador no soporta geolocalización");
-      return;
+    L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", {
+      attribution: "© OpenStreetMap contributors",
+      maxZoom: 18,
+    }).addTo(map);
+
+    let markerSeleccionado = null;
+    let latSeleccionada = null;
+    let lonSeleccionada = null;
+
+    // Cargar ubicaciones guardadas
+    function cargarUbicaciones() {
+      fetch(webAppUrl, {
+        method: "GET",
+        credentials: "include",
+      })
+        .then((res) => res.json())
+        .then((data) => {
+          data.forEach((item) => {
+            L.marker([item.lat, item.lon])
+              .addTo(map)
+              .bindPopup(`<b>${item.nombre}</b><br>Lat: ${item.lat}<br>Lon: ${item.lon}`);
+          });
+        })
+        .catch((err) => {
+          console.error("Error cargando ubicaciones:", err);
+          document.getElementById("mensaje").textContent = "Error cargando datos del mapa.";
+        });
     }
 
-    navigator.geolocation.getCurrentPosition(pos => {
-      const lat = pos.coords.latitude;
-      const lng = pos.coords.longitude;
+    cargarUbicaciones();
 
-      const data = new URLSearchParams();
-      data.append("entry.1180032392", nombre);      // Cambia por tu código real
-      data.append("entry.1455287260", servicio);    // Cambia por tu código real
-      data.append("entry.AAA111111", lat);          // Cambia por tu código real Latitud
-      data.append("entry.BBB222222", lng);          // Cambia por tu código real Longitud
+    map.on("click", function (e) {
+      latSeleccionada = e.latlng.lat;
+      lonSeleccionada = e.latlng.lng;
 
-      fetch(formURL, {
-        method: "POST",
-        mode: "no-cors",
-        body: data
-      })
-      .then(() => alert("✅ Cliente guardado correctamente"))
-      .catch(() => alert("❌ No se pudo guardar el cliente"));
+      if (markerSeleccionado) {
+        map.removeLayer(markerSeleccionado);
+      }
 
-    }, err => {
-      alert("❌ Error obteniendo ubicación");
+      markerSeleccionado = L.marker([latSeleccionada, lonSeleccionada])
+        .addTo(map)
+        .bindPopup("Ubicación seleccionada")
+        .openPopup();
+
+      document.getElementById("guardarBtn").disabled = false;
+      document.getElementById("mensaje").textContent = `Ubicación lista para guardar: (${latSeleccionada.toFixed(5)}, ${lonSeleccionada.toFixed(5)})`;
     });
-  });
-</script>
+
+    document.getElementById("guardarBtn").addEventListener("click", () => {
+      const nombre = document.getElementById("nombre").value.trim();
+      if (!nombre) {
+        alert("Por favor, ingresa un nombre para la ubicación.");
+        return;
+      }
+      if (latSeleccionada === null || lonSeleccionada === null) {
+        alert("Selecciona una ubicación en el mapa primero.");
+        return;
+      }
+
+      const data = {
+        nombre: nombre,
+        lat: latSeleccionada,
+        lon: lonSeleccionada,
+      };
+
+      fetch(webAppUrl, {
+        method: "POST",
+        credentials: "include",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(data),
+      })
+        .then((response) => response.json())
+        .then((resp) => {
+          if (resp.result === "success") {
+            alert("Ubicación guardada correctamente.");
+            document.getElementById("nombre").value = "";
+            document.getElementById("guardarBtn").disabled = true;
+            document.getElementById("mensaje").textContent = "";
+            if (markerSeleccionado) {
+              map.removeLayer(markerSeleccionado);
+              markerSeleccionado = null;
+            }
+            cargarUbicaciones();
+          } else {
+            alert("Error al guardar: " + resp.message);
+          }
+        })
+        .catch((err) => {
+          alert("Error enviando los datos: " + err);
+        });
+    });
+  </script>
+</body>
+</html>
