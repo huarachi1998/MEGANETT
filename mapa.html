@@ -41,14 +41,43 @@
   <div id="map"></div>
 
   <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/papaparse@5.4.1/papaparse.min.js"></script>
+
   <script>
     const scriptURL = "https://script.google.com/macros/s/AKfycbw6VpSHeZzGhfiajSZooUtm-nu_SHuuzJI-KovhHAY8vHSNv07sw0fUIV3gOuEaM6w38w/exec";
 
-    const map = L.map('map').setView([-17.4, -66.2], 13); // Cambia según tu ciudad
+    // URL pública CSV de tu Google Sheets (debes publicar la hoja)
+    const csvURL = "https://docs.google.com/spreadsheets/d/e/2PACX-1vQSEdbWwSHKOLL9lf40WTKvspSsPGP77M90GmDGKEqJsePbl_GtPwBTrnPhe2E7D4MYqtIJoFOdfOzb/pub?output=csv";
+
+    const map = L.map('map').setView([-17.4, -66.2], 13);
 
     L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
       attribution: '© OpenStreetMap contributors'
     }).addTo(map);
+
+    // Cargar marcadores existentes
+    function cargarClientes() {
+      Papa.parse(csvURL, {
+        download: true,
+        header: true,
+        complete: function(results) {
+          results.data.forEach(cliente => {
+            const lat = parseFloat(cliente.latitud);
+            const lng = parseFloat(cliente.longitud);
+            const nombre = cliente.nombre || "Sin nombre";
+            const servicio = cliente.servicio || "Sin servicio";
+
+            if (!isNaN(lat) && !isNaN(lng)) {
+              L.marker([lat, lng])
+                .addTo(map)
+                .bindPopup(`<strong>${nombre}</strong><br>${servicio}`);
+            }
+          });
+        }
+      });
+    }
+
+    cargarClientes();
 
     map.on('click', function(e) {
       const lat = e.latlng.lat.toFixed(6);
@@ -71,8 +100,8 @@
     });
 
     function guardarCliente(lat, lng) {
-      const nombre = document.getElementById("nombre").value;
-      const servicio = document.getElementById("servicio").value;
+      const nombre = document.getElementById("nombre").value.trim();
+      const servicio = document.getElementById("servicio").value.trim();
 
       if (!nombre || !servicio) {
         alert("⚠️ Completa todos los campos");
