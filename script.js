@@ -1,5 +1,4 @@
 const map = L.map('map').setView([-16.5, -68.15], 13);
-
 L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
   attribution: '&copy; OpenStreetMap contributors'
 }).addTo(map);
@@ -15,13 +14,27 @@ fetch('nodos.json')
       const props = nodo.properties;
       const coords = nodo.geometry.coordinates.reverse();
 
+      // 🔀 Datos aleatorios por caja
+      const nombreCaja = `Caja P${Math.floor(Math.random() * 5) + 1}_${Math.floor(Math.random() * 5) + 1}`;
+      const celular = `60000${Math.floor(100 + Math.random() * 899)}`;
+      const puertos = Math.floor(Math.random() * 16) + 1;
+
       const marker = L.marker(coords).addTo(map)
         .bindPopup(`<b>${props.nombre}</b><br>Status: ${props.estado}<br>Cash: $${props.cash}`);
 
       marker.estado = props.estado;
       marker.on('click', () => {
-        document.getElementById("panel").innerHTML =
-          `<h2>${props.nombre}</h2><p>Status: ${props.estado}</p><p>Cash: $${props.cash}</p>`;
+        const panel = document.getElementById("panel");
+        panel.innerHTML = `
+          <h2>${props.nombre}</h2>
+          <p><strong>${nombreCaja}</strong></p>
+          <p>📞 Celular: ${celular}</p>
+          <p>🔌 Puertos disponibles: ${puertos}</p>
+          <p>Status: ${props.estado}</p>
+          <p>Cash: $${props.cash}</p>
+        `;
+        panel.classList.add("animado");
+        setTimeout(() => panel.classList.remove("animado"), 800);
       });
 
       marcadores.push(marker);
