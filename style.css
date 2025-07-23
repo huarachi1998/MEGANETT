@@ -1,30 +1,32 @@
 body {
   margin: 0;
-  font-family: sans-serif;
-  background: #f4f4f4;
+  font-family: 'Segoe UI', sans-serif;
+  background: #f9f9f9;
 }
 header, footer {
-  background: #222;
+  background: #1b1b1b;
   color: white;
-  padding: 10px;
   text-align: center;
+  padding: 15px;
 }
 #filtros button {
   margin: 5px;
-  padding: 5px 10px;
+  padding: 6px 12px;
+  font-weight: bold;
   cursor: pointer;
 }
 #stats {
   display: flex;
   justify-content: space-around;
-  background: #eee;
+  background: #eaeaea;
   padding: 10px;
+  font-weight: bold;
 }
 #map {
-  height: 70vh;
+  height: 65vh;
 }
 #panel {
-  padding: 10px;
+  padding: 15px;
   background: white;
   border-top: 1px solid #ccc;
 }
