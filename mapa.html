@@ -2,10 +2,8 @@
 <html lang="es">
 <head>
   <meta charset="UTF-8">
-  <title>📍 Clientes en el Mapa</title>
+  <title>📍 Mapa de Clientes con Filtro</title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-
-  <!-- Leaflet CSS -->
   <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
   <style>
     body, html {
@@ -14,48 +12,97 @@
       height: 100%;
     }
     #map {
-      height: 100vh;
+      height: 90vh;
       width: 100%;
+    }
+    #filtro {
+      padding: 10px;
+      text-align: center;
+      background: #f0f0f0;
+      font-family: sans-serif;
+    }
+    select {
+      padding: 6px;
+      font-size: 16px;
     }
   </style>
 </head>
 <body>
 
+  <div id="filtro">
+    <label for="servicioSelect">🔍 Filtrar por servicio:</label>
+    <select id="servicioSelect">
+      <option value="todos">Todos</option>
+    </select>
+  </div>
+
   <div id="map"></div>
 
-  <!-- Leaflet JS -->
   <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
-  <!-- PapaParse para leer CSV -->
   <script src="https://cdn.jsdelivr.net/npm/papaparse@5.4.1/papaparse.min.js"></script>
 
   <script>
     const urlCSV = "https://docs.google.com/spreadsheets/d/e/2PACX-1vQSEdbWwSHKOLL9lf40WTKvspSsPGP77M90GmDGKEqJsePbl_GtPwBTrnPhe2E7D4MYqtIJoFOdfOzb/pub?output=csv";
 
-    // Inicializa el mapa
-    const map = L.map('map').setView([-17.4, -66.2], 13); // Puedes ajustar el centro y zoom
-
-    // Carga base del mapa (OpenStreetMap)
+    const map = L.map('map').setView([-17.4, -66.2], 13);
     L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-      attribution: '🗺️ Mapas por OpenStreetMap'
+      attribution: '🗺️ OpenStreetMap'
     }).addTo(map);
 
-    // Cargar y parsear CSV
+    const markers = [];
+    let clientes = [];
+
+    const select = document.getElementById("servicioSelect");
+
+    function limpiarMarcadores() {
+      markers.forEach(marker => map.removeLayer(marker));
+      markers.length = 0;
+    }
+
+    function mostrarClientes(filtro) {
+      limpiarMarcadores();
+      clientes.forEach(cliente => {
+        const lat = parseFloat(cliente.latitud);
+        const lng = parseFloat(cliente.longitud);
+        const nombre = cliente.nombre || "Sin nombre";
+        const servicio = cliente.servicio || "Sin servicio";
+
+        if (isNaN(lat) || isNaN(lng)) return;
+
+        if (filtro === "todos" || servicio === filtro) {
+          const marker = L.marker([lat, lng])
+            .addTo(map)
+            .bindPopup(`<strong>${nombre}</strong><br>${servicio}`);
+          markers.push(marker);
+        }
+      });
+    }
+
+    function cargarServiciosUnicos() {
+      const servicios = new Set();
+      clientes.forEach(c => {
+        if (c.servicio) servicios.add(c.servicio);
+      });
+
+      servicios.forEach(s => {
+        const option = document.createElement("option");
+        option.value = s;
+        option.textContent = s;
+        select.appendChild(option);
+      });
+    }
+
+    select.addEventListener("change", () => {
+      mostrarClientes(select.value);
+    });
+
     Papa.parse(urlCSV, {
       download: true,
       header: true,
       complete: function(results) {
-        results.data.forEach(cliente => {
-          const lat = parseFloat(cliente.latitud);
-          const lng = parseFloat(cliente.longitud);
-          const nombre = cliente.nombre || 'Sin nombre';
-          const servicio = cliente.servicio || 'Sin servicio';
-
-          if (!isNaN(lat) && !isNaN(lng)) {
-            L.marker([lat, lng])
-              .addTo(map)
-              .bindPopup(`<strong>${nombre}</strong><br>${servicio}`);
-          }
-        });
+        clientes = results.data;
+        cargarServiciosUnicos();
+        mostrarClientes("todos");
       }
     });
   </script>
