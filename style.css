@@ -1,60 +1,35 @@
-body {
-  font-family: 'Segoe UI', sans-serif;
-  margin: 0;
-  background: linear-gradient(to right, #eef2f9, #ffffff);
-}
-
-header, footer {
-  background: #1b1b1b;
-  color: white;
-  text-align: center;
-  padding: 15px;
-}
-
-#map {
-  height: 65vh;
-}
-
-#stats {
+#statsZonas {
   display: flex;
   justify-content: space-around;
-  background: #eaeaea;
-  padding: 10px;
-  font-weight: bold;
+  flex-wrap: wrap;
+  background: #f9fbfd;
+  padding: 12px 16px;
+  border-top: 1px solid #ddd;
+  font-family: 'Segoe UI', sans-serif;
 }
 
-#menuZonas {
-  position: absolute;
-  top: 100px;
-  left: 15px;
-  background: rgba(255, 255, 255, 0.95);
-  border-radius: 10px;
-  padding: 15px;
-  width: 230px;
-  z-index: 1000;
-  box-shadow: 0 4px 12px rgba(0,0,0,0.1);
-  font-size: 14px;
-}
-
-#menuZonas h2 {
-  font-size: 18px;
-  margin-bottom: 12px;
-  color: #2c3e50;
+#statsZonas h2 {
+  width: 100%;
   text-align: center;
+  color: #2c3e50;
+  font-size: 18px;
+  margin-bottom: 10px;
 }
 
 .zona {
   display: flex;
   align-items: center;
-  margin-bottom: 10px;
-  background: #f4f7fc;
+  background: #ecf2f8;
   padding: 6px 10px;
-  border-radius: 6px;
+  border-radius: 8px;
+  margin: 5px;
+  flex: 1 1 45%;
+  max-width: 45%;
 }
 
 .icono {
   font-size: 22px;
-  margin-right: 10px;
+  margin-right: 8px;
 }
 
 .info strong {
@@ -65,19 +40,4 @@ header, footer {
 .info span {
   font-size: 12px;
   color: #7f8c8d;
-}
-
-.estado.activo { color: green; font-weight: bold; }
-.estado.saturado { color: red; font-weight: bold; }
-.estado.mantenimiento { color: orange; font-weight: bold; }
-
-button {
-  background: #3498db;
-  color: white;
-  border: none;
-  padding: 6px 12px;
-  margin-top: 8px;
-  border-radius: 4px;
-  cursor: pointer;
-  font-weight: bold;
 }
