@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <title>Mapa de Clientes</title>
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+  <style>
+    body, html { margin: 0; padding: 0; height: 100%; }
+    #map { height: 100vh; width: 100vw; }
+  </style>
+</head>
+<body>
+  <div id="map"></div>
+
+  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/tabletop@1.5.3/tabletop.min.js"></script>
+  <script>
+    // Inicializa el mapa en Bolivia
+    const map = L.map('map').setView([-17.39, -66.15], 13);
+
+    // Carga los tiles de OpenStreetMap
+    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+      attribution: '© OpenStreetMap contributors'
+    }).addTo(map);
+
+    // ID de tu hoja de cálculo
+    const sheetKey = "14t0wd2GeoGVJlOhNnOyNbxJONSSSY5EIvkqskJ_f-Z8";
+
+    // Al cargar la página, obtiene los datos de Google Sheets
+    window.addEventListener("DOMContentLoaded", () => {
+      Tabletop.init({
+        key: sheetKey,
+        simpleSheet: true,
+        callback: mostrarClientesEnMapa
+      });
+    });
+
+    // Función que dibuja los clientes en el mapa
+    function mostrarClientesEnMapa(data) {
+      data.forEach(item => {
+        const lat = parseFloat(item.latitud);
+        const lng = parseFloat(item.longitud);
+        const nombre = item.nombre || "Sin nombre";
+        const servicio = item.servicio || "No especificado";
+
+        if (!isNaN(lat) && !isNaN(lng)) {
+          L.marker([lat, lng], {
+            icon: L.divIcon({ html: '📍', className: '', iconSize: [18, 18] })
+          }).addTo(map)
+          .bindPopup(`
+            <strong>${nombre}</strong><br>
+            Servicio: ${servicio}<br>
+            <em>Ubicación registrada</em>
+          `);
+        }
+      });
+    }
+  </script>
+</body>
+</html>
