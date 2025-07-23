@@ -1,149 +1,63 @@
 <!DOCTYPE html>
-<html lang="es">
+<html>
 <head>
-  <meta charset="UTF-8" />
-  <title>Mapa de Clientes</title>
-  <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <link
-    rel="stylesheet"
-    href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"
-  />
+  <title>Guardar ubicaciones desde mapa</title>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <link 
+    rel="stylesheet" 
+    href="https://unpkg.com/leaflet/dist/leaflet.css" />
+  <script 
+    src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
   <style>
-    html,
-    body {
-      height: 100%;
-      margin: 0;
-    }
-    #map {
-      height: 100vh;
-      width: 100vw;
-    }
-    .form-popup {
-      font-family: sans-serif;
-      font-size: 14px;
-    }
-    .form-popup input {
-      width: 100%;
-      padding: 5px;
-      margin: 4px 0;
-      border: 1px solid #ccc;
-      border-radius: 4px;
-    }
-    .form-popup button {
-      width: 100%;
-      padding: 6px;
-      margin-top: 6px;
-      background-color: #28a745;
-      color: white;
-      border: none;
-      border-radius: 4px;
-      cursor: pointer;
-    }
-    .form-popup button:hover {
-      background-color: #218838;
-    }
+    #map { height: 90vh; width: 100%; }
   </style>
 </head>
 <body>
-  <div id="map"></div>
 
-  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
-  <script src="https://cdn.jsdelivr.net/npm/papaparse@5.4.1/papaparse.min.js"></script>
+<h2>Haz clic en el mapa para agregar una ubicación</h2>
+<div id="map"></div>
 
-  <script>
-    // URL del Google Apps Script desplegado
-    const scriptURL = "https://script.google.com/macros/s/AKfycbxUBIfKAjQICCbZaiXDSyr8n5j5x9eDVUdC0qV_MlCZk17qQdysU8V2tkSkUEr11mTuuQ/exec";
+<script>
+  var map = L.map('map').setView([-16.5, -68.1], 12);
 
-    // URL pública CSV de tu Google Sheets (reemplaza si tienes otra)
-    const csvURL = "https://docs.google.com/spreadsheets/d/e/2PACX-1vQSEdbWwSHKOLL9lf40WTKvspSsPGP77M90GmDGKEqJsePbl_GtPwBTrnPhe2E7D4MYqtIJoFOdfOzb/pub?output=csv";
+  L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+    attribution: '© OpenStreetMap contributors'
+  }).addTo(map);
 
-    // Inicializar mapa centrado en Bolivia (puedes cambiar coords y zoom)
-    const map = L.map("map").setView([-17.4, -66.2], 13);
-
-    L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", {
-      attribution: "© OpenStreetMap contributors",
-    }).addTo(map);
-
-    // Cargar clientes guardados y marcarlos
-    function cargarClientes() {
-      Papa.parse(csvURL, {
-        download: true,
-        header: true,
-        complete: function (results) {
-          results.data.forEach((cliente) => {
-            const lat = parseFloat(cliente.latitud);
-            const lng = parseFloat(cliente.longitud);
-            const nombre = cliente.nombre || "Sin nombre";
-            const servicio = cliente.servicio || "Sin servicio";
-
-            if (!isNaN(lat) && !isNaN(lng)) {
-              L.marker([lat, lng])
-                .addTo(map)
-                .bindPopup(`<strong>${nombre}</strong><br>${servicio}`);
-            }
-          });
-        },
-      });
+  map.on('click', function(e) {
+    var nombre = prompt('Nombre de la ubicación:');
+    if (!nombre) {
+      alert('No se guardó porque no escribiste un nombre.');
+      return;
     }
+    var lat = e.latlng.lat;
+    var lon = e.latlng.lng;
 
-    cargarClientes();
+    L.marker([lat, lon]).addTo(map)
+      .bindPopup(nombre)
+      .openPopup();
 
-    // Al clickear en mapa, abre formulario para agregar cliente
-    map.on("click", function (e) {
-      const lat = e.latlng.lat.toFixed(6);
-      const lng = e.latlng.lng.toFixed(6);
-
-      const popupContent = `
-        <div class="form-popup">
-          <label>Nombre:</label>
-          <input type="text" id="nombre" placeholder="Ej: Juan Pérez" />
-          <label>Servicio:</label>
-          <input type="text" id="servicio" placeholder="Ej: 300 Mbps" />
-          <button onclick="guardarCliente(${lat}, ${lng})">Guardar</button>
-        </div>
-      `;
-
-      L.popup().setLatLng(e.latlng).setContent(popupContent).openOn(map);
-    });
-
-    // Guardar cliente en Google Sheets via Apps Script
-    function guardarCliente(lat, lng) {
-      const nombre = document.getElementById("nombre").value.trim();
-      const servicio = document.getElementById("servicio").value.trim();
-
-      if (!nombre || !servicio) {
-        alert("⚠️ Completa todos los campos");
-        return;
+    fetch('https://script.google.com/macros/s/AKfycbyMW-KV6BeC9LwtQL73EsyBW7Upl2w52sM-GDT1t5NQcpgly5whRS2nU-LDo6cPHJPFbQ/exec', {
+      method: 'POST',
+      body: JSON.stringify({nombre: nombre, lat: lat, lon: lon}),
+      headers: {
+        'Content-Type': 'application/json'
       }
+    })
+    .then(response => response.json())
+    .then(data => {
+      if(data.result === 'success'){
+        alert('Ubicación guardada correctamente!');
+      } else {
+        alert('Error al guardar la ubicación: ' + (data.message || ''));
+      }
+    })
+    .catch(error => {
+      alert('Error de red: ' + error);
+    });
+  });
+</script>
 
-      const cliente = { nombre, servicio, latitud: lat, longitud: lng };
-
-      fetch(scriptURL, {
-        method: "POST",
-        body: JSON.stringify(cliente),
-        headers: {
-          "Content-Type": "application/json",
-        },
-      })
-        .then((res) => res.json())
-        .then((data) => {
-          if (data.result === "success") {
-            alert("✅ Cliente guardado correctamente");
-            L.marker([lat, lng])
-              .addTo(map)
-              .bindPopup(`<strong>${nombre}</strong><br>${servicio}`)
-              .openPopup();
-          } else {
-            alert("❌ Error: " + data.message);
-          }
-        })
-        .catch((err) => {
-          console.error("❌ Error:", err);
-          alert("❌ No se pudo guardar");
-        });
-
-      map.closePopup();
-    }
-  </script>
 </body>
 </html>
