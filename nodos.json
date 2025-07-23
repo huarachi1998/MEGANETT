@@ -1,0 +1,26 @@
+[
+  {
+    "nombre": "Zona Gamer",
+    "lat": -16.5001,
+    "lng": -68.1302,
+    "estado": "activo",
+    "correo": "gamer@tuisp.com",
+    "alerta": "04:12"
+  },
+  {
+    "nombre": "Zona Norte",
+    "lat": -16.4953,
+    "lng": -68.1401,
+    "estado": "caido",
+    "correo": "soporte@tuisp.com",
+    "alerta": "02:35"
+  },
+  {
+    "nombre": "Zona Sur",
+    "lat": -16.4922,
+    "lng": -68.1203,
+    "estado": "inestable",
+    "correo": "sur@tuisp.com",
+    "alerta": "03:17"
+  }
+]
