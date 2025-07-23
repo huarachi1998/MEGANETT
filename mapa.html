@@ -3,11 +3,15 @@
 <head>
   <title>Mapa de Clientes</title>
   <meta charset="utf-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <link
+    rel="stylesheet"
+    href="https://unpkg.com/leaflet/dist/leaflet.css"
+  />
   <style>
     #map {
       height: 100vh;
+      width: 100%;
     }
   </style>
 </head>
@@ -16,33 +20,55 @@
 
   <script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
   <script>
-    const map = L.map('map').setView([-16.5, -68.15], 13); // Centro aproximado en La Paz
+    // Inicializar el mapa centrado en Bolivia (puedes cambiar las coordenadas)
+    const map = L.map("map").setView([-17.4, -66.15], 13);
 
-    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-      attribution: '© OpenStreetMap contributors'
+    // Capa base OpenStreetMap
+    L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", {
+      attribution: "© OpenStreetMap contributors",
+      maxZoom: 18,
     }).addTo(map);
 
-    const url = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vRk_WtyKcE2kJXGSTFvze50600ZqjjTc3sivH-Le5Hdr_uSILd_p9AB_wyNlAbKGktpd9y-_aEFpvS6/gviz/tq?tqx=out:json';
+    // URL de tu hoja de cálculo publicada en formato CSV
+    const csvUrl =
+      "https://docs.google.com/spreadsheets/d/e/2PACX-1vRk_WtyKcE2kJXGSTFvze50600ZqjjTc3sivH-Le5Hdr_uSILd_p9AB_wyNlAbKGktpd9y-_aEFpvS6/pub?gid=0&single=true&output=csv";
 
-    fetch(url)
-      .then(response => response.text())
-      .then(data => {
-        const jsonData = JSON.parse(data.substring(47).slice(0, -2));
-        const rows = jsonData.table.rows;
+    // Función para parsear CSV simple
+    function parseCSV(str) {
+      const lines = str.trim().split("\n");
+      const headers = lines[0].split(",");
+      const rows = lines.slice(1).map((line) => {
+        const values = line.split(",");
+        const obj = {};
+        headers.forEach((header, i) => {
+          obj[header.trim()] = values[i].trim();
+        });
+        return obj;
+      });
+      return rows;
+    }
 
-        rows.forEach(row => {
-          const nombre = row.c[0]?.v || 'Sin nombre';
-          const lat = parseFloat(row.c[1]?.v);
-          const lon = parseFloat(row.c[2]?.v);
+    // Fetch para cargar datos CSV y agregar marcadores
+    fetch(csvUrl)
+      .then((response) => response.text())
+      .then((csvText) => {
+        const data = parseCSV(csvText);
+
+        data.forEach((row) => {
+          const lat = parseFloat(row.lat);
+          const lon = parseFloat(row.lon);
+          const nombre = row.nombre || "Sin nombre";
 
           if (!isNaN(lat) && !isNaN(lon)) {
-            L.marker([lat, lon]).addTo(map).bindPopup(nombre);
+            L.marker([lat, lon])
+              .addTo(map)
+              .bindPopup(`<b>${nombre}</b><br>Lat: ${lat}<br>Lon: ${lon}`);
           }
         });
       })
-      .catch(error => {
-        console.error('Error cargando datos:', error);
-        alert('Error cargando datos del mapa.');
+      .catch((error) => {
+        alert("Error cargando datos del mapa.");
+        console.error("Error al cargar CSV:", error);
       });
   </script>
 </body>
