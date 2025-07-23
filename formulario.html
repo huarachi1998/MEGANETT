@@ -1,0 +1,28 @@
+<form id="clienteForm">
+  <input type="text" id="nombre" placeholder="Nombre" required />
+  <input type="text" id="servicio" placeholder="Servicio (ej. 300 Mbps)" required />
+  <button type="submit">Guardar Cliente</button>
+</form>
+
+<script>
+  const formURL = "https://docs.google.com/forms/d/e/1FAIpQLSdrunQr54b48twIT1KTEoYUf0pX8blK-DI9oUXfX3B0zV5zJQ/formResponse";
+
+  document.getElementById("clienteForm").addEventListener("submit", e => {
+    e.preventDefault();
+
+    const nombre = document.getElementById("nombre").value;
+    const servicio = document.getElementById("servicio").value;
+
+    const data = new URLSearchParams();
+    data.append("entry.1180032392", nombre);
+    data.append("entry.1455287260", servicio);
+
+    fetch(formURL, {
+      method: "POST",
+      mode: "no-cors",  // evita problemas CORS
+      body: data
+    })
+    .then(() => alert("Cliente guardado correctamente"))
+    .catch(() => alert("Error al guardar cliente"));
+  });
+</script>
