@@ -1,35 +1,38 @@
-fetch('nodos.json')
-  .then(res => res.json())
-  .then(data => {
-    data.features.forEach(nodo => {
-      const props = nodo.properties;
-      const coords = [...nodo.geometry.coordinates].reverse();
+// 🧠 Agregar cliente manualmente al hacer clic en el mapa
+map.on('click', function(e) {
+  const latlng = e.latlng;
 
-      const nombreCaja = `Caja P${Math.floor(Math.random() * 5) + 1}_${Math.floor(Math.random() * 5) + 1}`;
-      const celular = `60000${Math.floor(100 + Math.random() * 899)}`;
-      const puertos = Math.floor(Math.random() * 16) + 1;
-      const olt = `OLT-${props.nombre.split(" ")[1] || "X"}-${Math.floor(Math.random() * 10) + 1}`;
+  L.popup()
+    .setLatLng(latlng)
+    .setContent(`
+      <div style="font-family:'Segoe UI';min-width:220px;">
+        <h3>📥 Nuevo Cliente</h3>
+        <input id="nombreCliente" type="text" placeholder="Nombre" style="width:100%;margin-bottom:6px;padding:4px;" />
+        <input id="servicioCliente" type="text" placeholder="Servicio (ej. 300 Mbps)" style="width:100%;margin-bottom:6px;padding:4px;" />
+        <button onclick="agregarCliente(${latlng.lat}, ${latlng.lng})"
+          style="background:#2ecc71;color:white;padding:6px 12px;border:none;border-radius:4px;cursor:pointer;">
+          📍 Agregar
+        </button>
+      </div>
+    `)
+    .openOn(map);
+});
 
-      L.marker(coords, {
-        icon: iconoMEGANET(props.estado)
-      }).addTo(map)
-      .bindPopup(`
-        <div style="min-width:240px; font-family:'Segoe UI', sans-serif;">
-          <h3 style="color:#2c3e50;">${props.nombre}</h3>
-          <div style="background:#f0f4f8;padding:8px;border-radius:6px;">
-            <p><strong>📦 Caja:</strong> ${nombreCaja}</p>
-            <p>📞 <strong>Técnico:</strong> ${celular}</p>
-            <p>🧠 <strong>OLT:</strong> ${olt}</p>
-            <p>🔌 <strong>Puertos disponibles:</strong> ${puertos}</p>
-            <div style="background:#e0e0e0;height:8px;border-radius:4px;overflow:hidden;">
-              <div style="width:${(puertos / 16) * 100}%;height:8px;background:#2ecc71;"></div>
-            </div>
-            <p style="font-size:12px;color:#555;">Disponibilidad de puertos</p>
-            <p><strong>⚠️ Estado:</strong> ${props.estado}</p>
-            <p><strong>💰 Cash acumulado:</strong> $${props.cash}</p>
-          </div>
-          <button onclick="solicitarConexion('${props.nombre}')">🚀 Solicitar conexión</button>
-        </div>
-      `);
-    });
-  });
+// 🧠 Función para crear el marcador del cliente
+function agregarCliente(lat, lng) {
+  const nombre = document.getElementById("nombreCliente").value || "Cliente sin nombre";
+  const servicio = document.getElementById("servicioCliente").value || "Servicio no especificado";
+
+  L.marker([lat, lng], {
+    icon: L.divIcon({ html: '👤', className: '', iconSize: [18, 18] })
+  }).addTo(map)
+  .bindPopup(`
+    <div style="font-family:'Segoe UI';min-width:200px;">
+      <h3>${nombre}</h3>
+      <p><strong>Servicio:</strong> ${servicio}</p>
+      <p><em>Agregado manualmente</em></p>
+    </div>
+  `);
+
+  map.closePopup();
+}
