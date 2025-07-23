@@ -4,29 +4,17 @@
     {
       "type": "Feature",
       "geometry": { "type": "Point", "coordinates": [-68.165, -16.500] },
-      "properties": {
-        "nombre": "Nodo C",
-        "estado": "mantenimiento",
-        "cash": 300
-      }
+      "properties": { "nombre": "Nodo C", "estado": "mantenimiento", "cash": 300 }
     },
     {
       "type": "Feature",
       "geometry": { "type": "Point", "coordinates": [-68.170, -16.495] },
-      "properties": {
-        "nombre": "NAP El Alto Central",
-        "estado": "saturado",
-        "cash": 450
-      }
+      "properties": { "nombre": "NAP El Alto Central", "estado": "saturado", "cash": 450 }
     },
     {
       "type": "Feature",
       "geometry": { "type": "Point", "coordinates": [-68.110, -16.570] },
-      "properties": {
-        "nombre": "NAP Mallasa 1",
-        "estado": "activo",
-        "cash": 980
-      }
+      "properties": { "nombre": "NAP Mallasa 1", "estado": "activo", "cash": 980 }
     }
   ]
 }
