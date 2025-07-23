@@ -1,111 +1,108 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
-  <meta charset="UTF-8">
-  <title>📍 Mapa de Clientes con Filtro</title>
+  <meta charset="UTF-8" />
+  <title>Mapa de Clientes</title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+  <link 
+    rel="stylesheet" 
+    href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"
+  />
   <style>
-    body, html {
-      margin: 0;
-      padding: 0;
-      height: 100%;
-    }
-    #map {
-      height: 90vh;
-      width: 100%;
-    }
-    #filtro {
-      padding: 10px;
-      text-align: center;
-      background: #f0f0f0;
+    html, body { height: 100%; margin: 0; }
+    #map { height: 100%; }
+    .form-popup {
       font-family: sans-serif;
+      font-size: 14px;
     }
-    select {
+    .form-popup input {
+      width: 100%;
+      padding: 5px;
+      margin: 4px 0;
+      border: 1px solid #ccc;
+      border-radius: 4px;
+    }
+    .form-popup button {
+      width: 100%;
       padding: 6px;
-      font-size: 16px;
+      margin-top: 6px;
+      background-color: #28a745;
+      color: white;
+      border: none;
+      border-radius: 4px;
+      cursor: pointer;
+    }
+    .form-popup button:hover {
+      background-color: #218838;
     }
   </style>
 </head>
 <body>
-
-  <div id="filtro">
-    <label for="servicioSelect">🔍 Filtrar por servicio:</label>
-    <select id="servicioSelect">
-      <option value="todos">Todos</option>
-    </select>
-  </div>
-
   <div id="map"></div>
 
   <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
-  <script src="https://cdn.jsdelivr.net/npm/papaparse@5.4.1/papaparse.min.js"></script>
-
   <script>
-    const urlCSV = "https://docs.google.com/spreadsheets/d/e/2PACX-1vQSEdbWwSHKOLL9lf40WTKvspSsPGP77M90GmDGKEqJsePbl_GtPwBTrnPhe2E7D4MYqtIJoFOdfOzb/pub?output=csv";
+    const scriptURL = "TU_SCRIPT_URL_AQUI"; // ← reemplaza con tu Apps Script URL
 
-    const map = L.map('map').setView([-17.4, -66.2], 13);
+    const map = L.map('map').setView([-17.4, -66.2], 13); // Ajusta centro según tu ciudad
+
     L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-      attribution: '🗺️ OpenStreetMap'
+      attribution: '© OpenStreetMap contributors'
     }).addTo(map);
 
-    const markers = [];
-    let clientes = [];
+    map.on('click', function(e) {
+      const lat = e.latlng.lat.toFixed(6);
+      const lng = e.latlng.lng.toFixed(6);
 
-    const select = document.getElementById("servicioSelect");
+      const popupContent = `
+        <div class="form-popup">
+          <label>Nombre:</label>
+          <input type="text" id="nombre" placeholder="Ej: Juan Pérez">
+          <label>Servicio:</label>
+          <input type="text" id="servicio" placeholder="Ej: 300 Mbps">
+          <button onclick="guardarCliente(${lat}, ${lng})">Guardar</button>
+        </div>
+      `;
 
-    function limpiarMarcadores() {
-      markers.forEach(marker => map.removeLayer(marker));
-      markers.length = 0;
-    }
-
-    function mostrarClientes(filtro) {
-      limpiarMarcadores();
-      clientes.forEach(cliente => {
-        const lat = parseFloat(cliente.latitud);
-        const lng = parseFloat(cliente.longitud);
-        const nombre = cliente.nombre || "Sin nombre";
-        const servicio = cliente.servicio || "Sin servicio";
-
-        if (isNaN(lat) || isNaN(lng)) return;
-
-        if (filtro === "todos" || servicio === filtro) {
-          const marker = L.marker([lat, lng])
-            .addTo(map)
-            .bindPopup(`<strong>${nombre}</strong><br>${servicio}`);
-          markers.push(marker);
-        }
-      });
-    }
-
-    function cargarServiciosUnicos() {
-      const servicios = new Set();
-      clientes.forEach(c => {
-        if (c.servicio) servicios.add(c.servicio);
-      });
-
-      servicios.forEach(s => {
-        const option = document.createElement("option");
-        option.value = s;
-        option.textContent = s;
-        select.appendChild(option);
-      });
-    }
-
-    select.addEventListener("change", () => {
-      mostrarClientes(select.value);
+      L.popup()
+        .setLatLng(e.latlng)
+        .setContent(popupContent)
+        .openOn(map);
     });
 
-    Papa.parse(urlCSV, {
-      download: true,
-      header: true,
-      complete: function(results) {
-        clientes = results.data;
-        cargarServiciosUnicos();
-        mostrarClientes("todos");
+    function guardarCliente(lat, lng) {
+      const nombre = document.getElementById("nombre").value;
+      const servicio = document.getElementById("servicio").value;
+
+      if (!nombre || !servicio) {
+        alert("⚠️ Completa todos los campos");
+        return;
       }
-    });
-  </script>
 
+      const cliente = { nombre, servicio, latitud: lat, longitud: lng };
+
+      fetch(scriptURL, {
+        method: "POST",
+        body: JSON.stringify(cliente),
+        headers: {
+          "Content-Type": "application/json"
+        }
+      })
+      .then(res => res.text())
+      .then(() => {
+        alert("✅ Cliente guardado correctamente");
+        L.marker([lat, lng])
+          .addTo(map)
+          .bindPopup(`<strong>${nombre}</strong><br>${servicio}`)
+          .openPopup();
+      })
+      .catch(err => {
+        console.error("❌ Error:", err);
+        alert("❌ No se pudo guardar");
+      });
+
+      map.closePopup();
+    }
+  </script>
 </body>
 </html>
