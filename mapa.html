@@ -2,11 +2,13 @@
 <html>
 <head>
   <title>Mapa de Clientes</title>
-  <meta charset="utf-8">
+  <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css" />
   <style>
-    #map { height: 100vh; }
+    #map {
+      height: 100vh;
+    }
   </style>
 </head>
 <body>
@@ -14,33 +16,33 @@
 
   <script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
   <script>
-    const url = "https://docs.google.com/spreadsheets/d/e/2PACX-1vRk_WtyKcE2kJXGSTFvze50600ZqjjTc3sivH-Le5Hdr_uSILd_p9AB_wyNlAbKGktpd9y-_aEFpvS6/gviz/tq?tqx=out:json";
+    const map = L.map('map').setView([-16.5, -68.15], 13); // Centro aproximado en La Paz
+
+    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+      attribution: '© OpenStreetMap contributors'
+    }).addTo(map);
+
+    const url = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vRk_WtyKcE2kJXGSTFvze50600ZqjjTc3sivH-Le5Hdr_uSILd_p9AB_wyNlAbKGktpd9y-_aEFpvS6/gviz/tq?tqx=out:json';
 
     fetch(url)
       .then(response => response.text())
-      .then(dataText => {
-        const jsonData = JSON.parse(dataText.substr(47).slice(0, -2)); // Limpia el texto extraño
+      .then(data => {
+        const jsonData = JSON.parse(data.substring(47).slice(0, -2));
         const rows = jsonData.table.rows;
 
-        const map = L.map('map').setView([-17.4, -66.15], 13); // Centro en Cochabamba
-        L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-          maxZoom: 18
-        }).addTo(map);
-
         rows.forEach(row => {
-          const nombre = row.c[0]?.v || "Sin nombre";
+          const nombre = row.c[0]?.v || 'Sin nombre';
           const lat = parseFloat(row.c[1]?.v);
           const lon = parseFloat(row.c[2]?.v);
+
           if (!isNaN(lat) && !isNaN(lon)) {
-            L.marker([lat, lon])
-              .addTo(map)
-              .bindPopup(`<b>${nombre}</b>`);
+            L.marker([lat, lon]).addTo(map).bindPopup(nombre);
           }
         });
       })
       .catch(error => {
-        alert("Error cargando datos del mapa.");
-        console.error(error);
+        console.error('Error cargando datos:', error);
+        alert('Error cargando datos del mapa.');
       });
   </script>
 </body>
