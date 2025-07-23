@@ -1,52 +1,20 @@
-<!DOCTYPE html>
-<html>
-<head>
-  <title>Mapa de Ubicaciones</title>
-  <meta charset="utf-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-
-  <!-- Leaflet CSS -->
-  <link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css" />
-  <style>
-    #map { height: 90vh; width: 100%; }
-  </style>
-</head>
-<body>
-
-<h2>Mapa de ubicaciones guardadas</h2>
-<div id="map"></div>
-
-<!-- Leaflet JS -->
-<script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
-<script>
-  // Inicializar mapa centrado en Bolivia (puedes cambiar las coordenadas)
-  var map = L.map('map').setView([-16.5, -68.1], 6);
-
-  // Capa base OpenStreetMap
-  L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-    maxZoom: 19,
-  }).addTo(map);
-
-  // URL de tu app web Google Apps Script (solo GET)
-  var url = 'https://script.google.com/macros/s/AKfycbwKdRrbDAQ0fnVw3hZsebHXlHgLW8WInBTaLzv6pdC_JqBtCQxDlYubz1e7xqZwMtIRGQ/exec';
-
-  // Cargar datos desde GAS y pintar marcadores
-  fetch(url)
-    .then(response => response.json())
-    .then(data => {
-      data.forEach(item => {
-        if(item.lat && item.lon) {
-          L.marker([parseFloat(item.lat), parseFloat(item.lon)])
-            .addTo(map)
-            .bindPopup(`<b>${item.nombre}</b><br>Lat: ${item.lat}<br>Lon: ${item.lon}`);
-        }
-      });
-    })
-    .catch(err => {
-      alert("Error al cargar los datos del mapa.");
-      console.error(err);
+fetch(url)
+  .then(response => {
+    if (!response.ok) {
+      throw new Error('Respuesta HTTP ' + response.status);
+    }
+    return response.json();
+  })
+  .then(data => {
+    data.forEach(item => {
+      if(item.lat && item.lon) {
+        L.marker([parseFloat(item.lat), parseFloat(item.lon)])
+          .addTo(map)
+          .bindPopup(`<b>${item.nombre}</b><br>Lat: ${item.lat}<br>Lon: ${item.lon}`);
+      }
     });
-</script>
-
-</body>
-</html>
+  })
+  .catch(err => {
+    alert("Error al cargar los datos del mapa: " + err.message);
+    console.error(err);
+  });
