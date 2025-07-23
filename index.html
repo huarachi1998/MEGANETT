@@ -1,112 +1,43 @@
-<!DOCTYPE html>
-<html lang="es">
-<head>
-  <meta charset="UTF-8">
-  <title>📥 Nuevo Cliente</title>
-  <style>
-    body {
-      font-family: sans-serif;
-      background: #f5f5f5;
-      display: flex;
-      justify-content: center;
-      padding-top: 50px;
+<form id="clienteForm">
+  <input type="text" id="nombre" placeholder="Nombre" required />
+  <input type="text" id="servicio" placeholder="Servicio (ej. 300 Mbps)" required />
+  <button type="submit">📍 Agregar y Guardar</button>
+</form>
+
+<script>
+  const formURL = "https://docs.google.com/forms/d/e/TU_FORM_ID/formResponse";
+
+  document.getElementById("clienteForm").addEventListener("submit", e => {
+    e.preventDefault();
+
+    const nombre = document.getElementById("nombre").value;
+    const servicio = document.getElementById("servicio").value;
+
+    if (!navigator.geolocation) {
+      alert("Tu navegador no soporta geolocalización");
+      return;
     }
-    form {
-      background: white;
-      padding: 20px 30px;
-      border-radius: 10px;
-      box-shadow: 0 0 10px #ccc;
-      width: 300px;
-    }
-    h2 {
-      margin-top: 0;
-      text-align: center;
-    }
-    input {
-      width: 100%;
-      padding: 8px;
-      margin-bottom: 12px;
-      border: 1px solid #ccc;
-      border-radius: 6px;
-    }
-    button {
-      background: #007bff;
-      color: white;
-      padding: 10px;
-      width: 100%;
-      border: none;
-      border-radius: 6px;
-      cursor: pointer;
-      font-weight: bold;
-    }
-    button:hover {
-      background: #0056b3;
-    }
-  </style>
-</head>
-<body>
 
-  <form id="clienteForm">
-    <h2>📥 Nuevo Cliente</h2>
-    <label>Nombre</label>
-    <input type="text" id="nombre" required />
+    navigator.geolocation.getCurrentPosition(pos => {
+      const lat = pos.coords.latitude;
+      const lng = pos.coords.longitude;
 
-    <label>Servicio (ej. 300 Mbps)</label>
-    <input type="text" id="servicio" required />
+      const data = new URLSearchParams();
+      data.append("entry.1180032392", nombre);      // Cambia por tu código real
+      data.append("entry.1455287260", servicio);    // Cambia por tu código real
+      data.append("entry.AAA111111", lat);          // Cambia por tu código real Latitud
+      data.append("entry.BBB222222", lng);          // Cambia por tu código real Longitud
 
-    <button type="submit">📍 Agregar y Guardar</button>
-  </form>
+      fetch(formURL, {
+        method: "POST",
+        mode: "no-cors",
+        body: data
+      })
+      .then(() => alert("✅ Cliente guardado correctamente"))
+      .catch(() => alert("❌ No se pudo guardar el cliente"));
 
-  <script>
-    const scriptURL = "https://script.google.com/macros/s/AKfycbw6VpSHeZzGhfiajSZooUtm-nu_SHuuzJI-KovhHAY8vHSNv07sw0fUIV3gOuEaM6w38w/exec";
-
-    document.getElementById('clienteForm').addEventListener('submit', function(e) {
-      e.preventDefault();
-
-      // Datos básicos
-      const nombre = document.getElementById('nombre').value;
-      const servicio = document.getElementById('servicio').value;
-
-      // Geolocalización del navegador
-      if (!navigator.geolocation) {
-        alert("Tu navegador no soporta geolocalización");
-        return;
-      }
-
-      navigator.geolocation.getCurrentPosition(pos => {
-        const lat = pos.coords.latitude;
-        const lng = pos.coords.longitude;
-
-        const cliente = {
-          nombre: nombre,
-          servicio: servicio,
-          latitud: lat,
-          longitud: lng
-        };
-
-        // Enviar a Google Sheets
-        fetch(scriptURL, {
-          method: 'POST',
-          body: JSON.stringify(cliente),
-          headers: {
-            'Content-Type': 'application/json'
-          }
-        })
-        .then(response => response.text())
-        .then(result => {
-          alert("✅ Cliente guardado correctamente");
-          document.getElementById('clienteForm').reset();
-        })
-        .catch(error => {
-          console.error("❌ Error:", error);
-          alert("❌ No se pudo guardar el cliente");
-        });
-
-      }, error => {
-        alert("Error al obtener tu ubicación");
-      });
+    }, err => {
+      alert("❌ Error obteniendo ubicación");
     });
-  </script>
-
-</body>
-</html>
+  });
+</script>
