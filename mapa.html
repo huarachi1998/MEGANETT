@@ -3,58 +3,51 @@
 <head>
   <meta charset="UTF-8">
   <title>Mapa de Clientes</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
   <style>
-    body, html { margin: 0; padding: 0; height: 100%; }
-    #map { height: 100vh; width: 100vw; }
+    #map {
+      height: 100vh;
+      width: 100%;
+    }
   </style>
 </head>
 <body>
   <div id="map"></div>
 
   <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
-  <script src="https://cdn.jsdelivr.net/npm/tabletop@1.5.3/tabletop.min.js"></script>
   <script>
-    // Inicializa el mapa en Bolivia
-    const map = L.map('map').setView([-17.39, -66.15], 13);
+    const hojaURL = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vQSEdbWwSHKOLL9lf40WTKvspSsPGP77M90GmDGKEqJsePbl_GtPwBTrnPhe2E7D4MYqtIJoFOdfOzb/pub?output=csv';
 
-    // Carga los tiles de OpenStreetMap
+    const mapa = L.map('map').setView([-17.39, -66.15], 13);
+
     L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-      attribution: '© OpenStreetMap contributors'
-    }).addTo(map);
+      attribution: '© OpenStreetMap'
+    }).addTo(mapa);
 
-    // ID de tu hoja de cálculo
-    const sheetKey = "14t0wd2GeoGVJlOhNnOyNbxJONSSSY5EIvkqskJ_f-Z8";
+    fetch(hojaURL)
+      .then(res => res.text())
+      .then(csv => {
+        const lineas = csv.split('\n');
+        const encabezados = lineas[0].split(',');
 
-    // Al cargar la página, obtiene los datos de Google Sheets
-    window.addEventListener("DOMContentLoaded", () => {
-      Tabletop.init({
-        key: sheetKey,
-        simpleSheet: true,
-        callback: mostrarClientesEnMapa
-      });
-    });
+        for (let i = 1; i < lineas.length; i++) {
+          const fila = lineas[i].split(',');
+          const nombre = fila[0];
+          const servicio = fila[1];
+          const lat = parseFloat(fila[2]);
+          const lng = parseFloat(fila[3]);
 
-    // Función que dibuja los clientes en el mapa
-    function mostrarClientesEnMapa(data) {
-      data.forEach(item => {
-        const lat = parseFloat(item.latitud);
-        const lng = parseFloat(item.longitud);
-        const nombre = item.nombre || "Sin nombre";
-        const servicio = item.servicio || "No especificado";
-
-        if (!isNaN(lat) && !isNaN(lng)) {
-          L.marker([lat, lng], {
-            icon: L.divIcon({ html: '📍', className: '', iconSize: [18, 18] })
-          }).addTo(map)
-          .bindPopup(`
-            <strong>${nombre}</strong><br>
-            Servicio: ${servicio}<br>
-            <em>Ubicación registrada</em>
-          `);
+          if (!isNaN(lat) && !isNaN(lng)) {
+            L.marker([lat, lng]).addTo(mapa)
+              .bindPopup(`<b>${nombre}</b><br>${servicio}`);
+          }
         }
+      })
+      .catch(err => {
+        console.error('Error cargando datos:', err);
+        alert('No se pudo cargar el mapa');
       });
-    }
   </script>
 </body>
 </html>
