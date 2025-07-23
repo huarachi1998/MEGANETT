@@ -1,41 +1,43 @@
-body {
-  font-family: 'Segoe UI', sans-serif;
-  background: linear-gradient(to right, #eef2f9, #ffffff);
-  margin: 0;
-}
-
-#menuLateral {
+#menuZonas {
   position: absolute;
-  top: 100px;
-  left: 10px;
+  top: 90px;
+  left: 15px;
   background: rgba(255, 255, 255, 0.95);
   border-radius: 10px;
   padding: 15px;
-  width: 220px;
+  width: 230px;
   z-index: 1000;
   box-shadow: 0 4px 12px rgba(0,0,0,0.1);
-  font-size: 14px;
-  line-height: 1.4;
+  font-family: 'Segoe UI', sans-serif;
 }
 
-#menuLateral h2 {
+#menuZonas h2 {
   font-size: 18px;
-  margin-bottom: 10px;
+  margin-bottom: 12px;
   color: #2c3e50;
+  text-align: center;
 }
 
 .zona {
+  display: flex;
+  align-items: center;
   margin-bottom: 10px;
-  padding: 6px;
-  border-left: 4px solid #3498db;
-  background: #f6faff;
-  border-radius: 4px;
+  background: #f4f7fc;
+  padding: 6px 10px;
+  border-radius: 6px;
 }
-.zona strong {
+
+.icono {
+  font-size: 22px;
+  margin-right: 10px;
+}
+
+.info strong {
   display: block;
   color: #34495e;
+  font-size: 14px;
 }
-.zona span {
-  color: #7f8c8d;
+.info span {
   font-size: 12px;
+  color: #7f8c8d;
 }
