@@ -2,10 +2,17 @@
 <html lang="es">
 <head>
   <meta charset="UTF-8">
-  <title>Mapa de Clientes</title>
+  <title>📍 Clientes en el Mapa</title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+  <!-- Leaflet CSS -->
   <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
   <style>
+    body, html {
+      margin: 0;
+      padding: 0;
+      height: 100%;
+    }
     #map {
       height: 100vh;
       width: 100%;
@@ -13,41 +20,45 @@
   </style>
 </head>
 <body>
+
   <div id="map"></div>
 
+  <!-- Leaflet JS -->
   <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+  <!-- PapaParse para leer CSV -->
+  <script src="https://cdn.jsdelivr.net/npm/papaparse@5.4.1/papaparse.min.js"></script>
+
   <script>
-    const hojaURL = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vQSEdbWwSHKOLL9lf40WTKvspSsPGP77M90GmDGKEqJsePbl_GtPwBTrnPhe2E7D4MYqtIJoFOdfOzb/pub?output=csv';
+    const urlCSV = "https://docs.google.com/spreadsheets/d/e/2PACX-1vQSEdbWwSHKOLL9lf40WTKvspSsPGP77M90GmDGKEqJsePbl_GtPwBTrnPhe2E7D4MYqtIJoFOdfOzb/pub?output=csv";
 
-    const mapa = L.map('map').setView([-17.39, -66.15], 13);
+    // Inicializa el mapa
+    const map = L.map('map').setView([-17.4, -66.2], 13); // Puedes ajustar el centro y zoom
 
+    // Carga base del mapa (OpenStreetMap)
     L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-      attribution: '© OpenStreetMap'
-    }).addTo(mapa);
+      attribution: '🗺️ Mapas por OpenStreetMap'
+    }).addTo(map);
 
-    fetch(hojaURL)
-      .then(res => res.text())
-      .then(csv => {
-        const lineas = csv.split('\n');
-        const encabezados = lineas[0].split(',');
-
-        for (let i = 1; i < lineas.length; i++) {
-          const fila = lineas[i].split(',');
-          const nombre = fila[0];
-          const servicio = fila[1];
-          const lat = parseFloat(fila[2]);
-          const lng = parseFloat(fila[3]);
+    // Cargar y parsear CSV
+    Papa.parse(urlCSV, {
+      download: true,
+      header: true,
+      complete: function(results) {
+        results.data.forEach(cliente => {
+          const lat = parseFloat(cliente.latitud);
+          const lng = parseFloat(cliente.longitud);
+          const nombre = cliente.nombre || 'Sin nombre';
+          const servicio = cliente.servicio || 'Sin servicio';
 
           if (!isNaN(lat) && !isNaN(lng)) {
-            L.marker([lat, lng]).addTo(mapa)
-              .bindPopup(`<b>${nombre}</b><br>${servicio}`);
+            L.marker([lat, lng])
+              .addTo(map)
+              .bindPopup(`<strong>${nombre}</strong><br>${servicio}`);
           }
-        }
-      })
-      .catch(err => {
-        console.error('Error cargando datos:', err);
-        alert('No se pudo cargar el mapa');
-      });
+        });
+      }
+    });
   </script>
+
 </body>
 </html>
