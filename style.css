@@ -1,3 +1,33 @@
+body {
+  margin: 0;
+  font-family: sans-serif;
+  background: #f4f4f4;
+}
+header, footer {
+  background: #222;
+  color: white;
+  padding: 10px;
+  text-align: center;
+}
+#filtros button {
+  margin: 5px;
+  padding: 5px 10px;
+  cursor: pointer;
+}
+#stats {
+  display: flex;
+  justify-content: space-around;
+  background: #eee;
+  padding: 10px;
+}
+#map {
+  height: 70vh;
+}
+#panel {
+  padding: 10px;
+  background: white;
+  border-top: 1px solid #ccc;
+}
 #panel.animado {
   animation: aparecer 0.8s ease-out;
 }
@@ -5,3 +35,6 @@
   0% { transform: translateY(20px); opacity: 0; }
   100% { transform: translateY(0); opacity: 1; }
 }
+.estado.activo { color: green; font-weight: bold; }
+.estado.saturado { color: red; font-weight: bold; }
+.estado.mantenimiento { color: orange; font-weight: bold; }
