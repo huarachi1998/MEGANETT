@@ -1,26 +1,38 @@
 [
   {
-    "nombre": "Zona Gamer",
+    "nombre": "NAP-ZonaSur-01",
     "lat": -16.5001,
     "lng": -68.1302,
     "estado": "activo",
-    "correo": "gamer@tuisp.com",
-    "alerta": "04:12"
+    "capacidad": "1:8",
+    "puertos_libres": 5,
+    "olt": "OLT-01 / F1-B2-P3",
+    "potencia": "-18.2 dBm",
+    "precinto": "MEG-001",
+    "correo": "zona-sur@meganet.bo"
   },
   {
-    "nombre": "Zona Norte",
+    "nombre": "NAP-ZonaNorte-02",
     "lat": -16.4953,
     "lng": -68.1401,
-    "estado": "caido",
-    "correo": "soporte@tuisp.com",
-    "alerta": "02:35"
+    "estado": "saturado",
+    "capacidad": "1:16",
+    "puertos_libres": 0,
+    "olt": "OLT-02 / F2-B1-P1",
+    "potencia": "-20.5 dBm",
+    "precinto": "MEG-002",
+    "correo": "zona-norte@meganet.bo"
   },
   {
-    "nombre": "Zona Sur",
+    "nombre": "NAP-Centro-03",
     "lat": -16.4922,
     "lng": -68.1203,
-    "estado": "inestable",
-    "correo": "sur@tuisp.com",
-    "alerta": "03:17"
+    "estado": "mantenimiento",
+    "capacidad": "1:8",
+    "puertos_libres": 2,
+    "olt": "OLT-01 / F1-B3-P2",
+    "potencia": "-19.0 dBm",
+    "precinto": "MEG-003",
+    "correo": "centro@meganet.bo"
   }
 ]
