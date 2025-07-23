@@ -1,3 +1,20 @@
+body {
+  font-family: 'Segoe UI', sans-serif;
+  margin: 0;
+  background: linear-gradient(to right, #eef2f9, #ffffff);
+}
+
+header, footer {
+  background: #1b1b1b;
+  color: white;
+  text-align: center;
+  padding: 15px;
+}
+
+#map {
+  height: 65vh;
+}
+
 #statsZonas {
   display: flex;
   justify-content: space-around;
@@ -5,7 +22,6 @@
   background: #f9fbfd;
   padding: 12px 16px;
   border-top: 1px solid #ddd;
-  font-family: 'Segoe UI', sans-serif;
 }
 
 #statsZonas h2 {
