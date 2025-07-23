@@ -1,35 +1,40 @@
-<aside id="menuZonas">
-  <h2>📶 Zonas MEGANET FTTH</h2>
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="utf-8" />
+  <title>MEGANET - Mapa FTTH</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
 
-  <div class="zona">
-    <div class="icono">🟢</div>
-    <div class="info">
-      <strong>El Alto Norte</strong>
-      <span>Conexiones activas</span>
-    </div>
+  <header>
+    <h1>MEGANET FTTH</h1>
+    <p>Velocidad, estabilidad y cobertura visual en tiempo real.</p>
+  </header>
+
+  <aside id="menuZonas">
+    <h2>📶 Zonas MEGANET FTTH</h2>
+    <div class="zona"><div class="icono">🟢</div><div class="info"><strong>El Alto Norte</strong><span>Conexiones activas</span></div></div>
+    <div class="zona"><div class="icono">🟡</div><div class="info"><strong>Mallasa</strong><span>Expansión programada</span></div></div>
+    <div class="zona"><div class="icono">🔴</div><div class="info"><strong>El Alto Central</strong><span>Revisión técnica</span></div></div>
+    <div class="zona"><div class="icono">🟠</div><div class="info"><strong>Zona C</strong><span>Mantenimiento en curso</span></div></div>
+  </aside>
+
+  <div id="stats">
+    <p>Puntos: <span id="puntos">0</span></p>
+    <p>Cash: $<span id="cash">0</span></p>
+    <p>Última actualización: <span id="fecha"></span></p>
   </div>
 
-  <div class="zona">
-    <div class="icono">🟡</div>
-    <div class="info">
-      <strong>Mallasa</strong>
-      <span>Expansión programada</span>
-    </div>
-  </div>
+  <div id="map"></div>
 
-  <div class="zona">
-    <div class="icono">🔴</div>
-    <div class="info">
-      <strong>El Alto Central</strong>
-      <span>Revisión técnica</span>
-    </div>
-  </div>
+  <footer>
+    <p>MEGANET S.A. | Red FTTH Bolivia</p>
+  </footer>
 
-  <div class="zona">
-    <div class="icono">🟠</div>
-    <div class="info">
-      <strong>Zona C</strong>
-      <span>Mantenimiento en curso</span>
-    </div>
-  </div>
-</aside>
+  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+  <script src="script.js"></script>
+</body>
+</html>
