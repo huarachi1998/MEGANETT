@@ -25,18 +25,18 @@ header, footer {
 #map {
   height: 65vh;
 }
-#panel {
-  padding: 15px;
-  background: white;
-  border-top: 1px solid #ccc;
-}
-#panel.animado {
-  animation: aparecer 0.8s ease-out;
-}
-@keyframes aparecer {
-  0% { transform: translateY(20px); opacity: 0; }
-  100% { transform: translateY(0); opacity: 1; }
-}
 .estado.activo { color: green; font-weight: bold; }
 .estado.saturado { color: red; font-weight: bold; }
 .estado.mantenimiento { color: orange; font-weight: bold; }
+button {
+  background: #0088cc;
+  color: white;
+  border: none;
+  padding: 6px 12px;
+  margin-top: 6px;
+  cursor: pointer;
+  border-radius: 4px;
+}
+button:hover {
+  background: #006699;
+}
