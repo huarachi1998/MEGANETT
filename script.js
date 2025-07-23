@@ -1,10 +1,3 @@
-const map = L.map('map').setView([-16.5, -68.15], 13);
-L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-  attribution: '&copy; OpenStreetMap contributors'
-}).addTo(map);
-
-let marcadores = [];
-
 fetch('nodos.json')
   .then(res => res.json())
   .then(data => {
@@ -14,7 +7,7 @@ fetch('nodos.json')
       const props = nodo.properties;
       const coords = nodo.geometry.coordinates.reverse();
 
-      // 🔀 Datos simulados
+      // 🔀 Datos simulados avanzados
       const nombreCaja = `Caja P${Math.floor(Math.random() * 5) + 1}_${Math.floor(Math.random() * 5) + 1}`;
       const celular = `60000${Math.floor(100 + Math.random() * 899)}`;
       const puertos = Math.floor(Math.random() * 16) + 1;
@@ -22,7 +15,7 @@ fetch('nodos.json')
 
       const marker = L.marker(coords).addTo(map)
         .bindPopup(`
-          <div style="min-width:200px">
+          <div style="min-width:220px">
             <h3>${props.nombre}</h3>
             <p><strong>${nombreCaja}</strong></p>
             <p>📞 Técnico: ${celular}</p>
@@ -44,17 +37,3 @@ fetch('nodos.json')
     document.getElementById("cash").textContent = cash.toFixed(2);
     document.getElementById("fecha").textContent = new Date().toLocaleDateString();
   });
-
-function filtrar(estado) {
-  marcadores.forEach(marker => {
-    if (estado === 'todos' || marker.estado === estado) {
-      marker.addTo(map);
-    } else {
-      map.removeLayer(marker);
-    }
-  });
-}
-
-function solicitarConexion(nodo) {
-  alert(`📡 Solicitud enviada para el nodo ${nodo}. Un técnico te contactará pronto.`);
-}
