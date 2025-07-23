@@ -5,9 +5,9 @@
       "type": "Feature",
       "geometry": { "type": "Point", "coordinates": [-68.165, -16.500] },
       "properties": {
-        "nombre": "NAP El Alto Norte",
-        "estado": "activo",
-        "cash": 1200
+        "nombre": "Nodo C",
+        "estado": "mantenimiento",
+        "cash": 300
       }
     },
     {
@@ -21,29 +21,11 @@
     },
     {
       "type": "Feature",
-      "geometry": { "type": "Point", "coordinates": [-68.175, -16.490] },
-      "properties": {
-        "nombre": "NAP El Alto Sur",
-        "estado": "mantenimiento",
-        "cash": 300
-      }
-    },
-    {
-      "type": "Feature",
       "geometry": { "type": "Point", "coordinates": [-68.110, -16.570] },
       "properties": {
         "nombre": "NAP Mallasa 1",
         "estado": "activo",
         "cash": 980
-      }
-    },
-    {
-      "type": "Feature",
-      "geometry": { "type": "Point", "coordinates": [-68.115, -16.575] },
-      "properties": {
-        "nombre": "NAP Mallasa 2",
-        "estado": "activo",
-        "cash": 760
       }
     }
   ]
