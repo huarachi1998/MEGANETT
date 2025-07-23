@@ -1,38 +1,23 @@
 [
   {
-    "nombre": "NAP-ZonaSur-01",
-    "lat": -16.5001,
-    "lng": -68.1302,
+    "nombre": "Nodo A",
+    "lat": -16.499,
+    "lng": -68.123,
     "estado": "activo",
-    "capacidad": "1:8",
-    "puertos_libres": 5,
-    "olt": "OLT-01 / F1-B2-P3",
-    "potencia": "-18.2 dBm",
-    "precinto": "MEG-001",
-    "correo": "zona-sur@meganet.bo"
+    "clientes": 42
   },
   {
-    "nombre": "NAP-ZonaNorte-02",
-    "lat": -16.4953,
-    "lng": -68.1401,
+    "nombre": "Nodo B",
+    "lat": -16.502,
+    "lng": -68.127,
     "estado": "saturado",
-    "capacidad": "1:16",
-    "puertos_libres": 0,
-    "olt": "OLT-02 / F2-B1-P1",
-    "potencia": "-20.5 dBm",
-    "precinto": "MEG-002",
-    "correo": "zona-norte@meganet.bo"
+    "clientes": 60
   },
   {
-    "nombre": "NAP-Centro-03",
-    "lat": -16.4922,
-    "lng": -68.1203,
+    "nombre": "Nodo C",
+    "lat": -16.503,
+    "lng": -68.120,
     "estado": "mantenimiento",
-    "capacidad": "1:8",
-    "puertos_libres": 2,
-    "olt": "OLT-01 / F1-B3-P2",
-    "potencia": "-19.0 dBm",
-    "precinto": "MEG-003",
-    "correo": "centro@meganet.bo"
+    "clientes": 15
   }
 ]
